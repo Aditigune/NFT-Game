@@ -1,20 +1,20 @@
 /** Connect to Moralis server */
-const serverUrl = "https://srgzhuv6abxq.usemoralis.com:2053/server";
-const appId = "cjjFUH3zlkQvds6O8nHjrHbivDLAcYyvJ1LA0f1z";
+const serverUrl = "";
+const appId = "";
 Moralis.start({ serverUrl, appId });
 
 /** Add from here down */
 async function login() {
   let user = Moralis.User.current();
   if (!user) {
-   try {
-      user = await Moralis.authenticate({ signingMessage: "Hello World!" })
+    try {
+      user = await Moralis.authenticate({ signingMessage: "Hello World!" });
       //console.log(user)
       //console.log(user.get('ethAddress'))
-     launch();
-   } catch(error) {
-     console.log(error)
-   }
+      launch();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
@@ -43,17 +43,17 @@ var config = {
   width: 800,
   height: 600,
   physics: {
-    default: 'arcade',
+    default: "arcade",
     arcade: {
-        gravity: { y: 300 },
-        debug: false
-    }
+      gravity: { y: 300 },
+      debug: false,
+    },
   },
   scene: {
-      preload: preload,
-      create: create,
-      update: update
-  }
+    preload: preload,
+    create: create,
+    update: update,
+  },
 };
 
 //var game = new Phaser.Game(config);
@@ -69,17 +69,15 @@ var cursors;
 var jumpHeight = -300;
 var that;
 
-
 async function launch() {
   let user = Moralis.User.current();
   if (!user) {
-   try {
-     console.log("PLEASE LOG IN WITH METAMASK");
-   } catch(error) {
-     console.log(error)
-   }
-  }
-  else {
+    try {
+      console.log("PLEASE LOG IN WITH METAMASK");
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
     console.log(user.get("ethAddress") + " " + " is logged in.");
     game = new Phaser.Game(config);
   }
@@ -88,50 +86,60 @@ async function launch() {
 launch();
 
 //loading asset
-async function preload ()
-{
+async function preload() {
   that = this;
-  this.load.image('background', '/assets/png/BG.png');
-  this.load.image('ground', '/assets/png/Tiles/Tile (2).png');
-  this.load.image('comptetitor', '/assets/png/gotchi.png');
+  this.load.image("background", "/assets/png/BG.png");
+  this.load.image("ground", "/assets/png/Tiles/Tile (2).png");
+  this.load.image("comptetitor", "/assets/png/gotchi.png");
 
   // fetch player SVG
   const numericTraits = [1, 99, 99, 99, 1, 1]; // UI to change the traits
-  const equippedWearables = [23,61,2,43,0,4,0,1,0,0,0,0,0,0,0,0];
+  const equippedWearables = [23, 61, 2, 43, 0, 4, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  const rawSVG = await Moralis.Cloud.run("getSVG",{numericTraits:numericTraits,equippedWearables:equippedWearables})
+  const rawSVG = await Moralis.Cloud.run("getSVG", {
+    numericTraits: numericTraits,
+    equippedWearables: equippedWearables,
+  });
 
-  const svgBlob = new Blob([rawSVG], {type:"image/svg+xml;charset=utf-8"})
-  const url = URL.createObjectURL(svgBlob)
+  const svgBlob = new Blob([rawSVG], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
 
-  this.load.image('player',url);
+  this.load.image("player", url);
 
-  this.load.on('filecomplete', function(){
-
-    initPlayer()
-  }, this);
-  this.load.start()
+  this.load.on(
+    "filecomplete",
+    function () {
+      initPlayer();
+    },
+    this
+  );
+  this.load.start();
 }
 
-async function initPlayer(){
-  player = that.physics.add.sprite(500, 250, 'player').setScale(0.3).refreshBody();
+async function initPlayer() {
+  player = that.physics.add
+    .sprite(500, 250, "player")
+    .setScale(0.3)
+    .refreshBody();
   player.setBounce(0.3);
   that.physics.add.collider(player, platforms);
 }
 //initial setup
-async function create ()
-{
-  this.add.image(400, 300, 'background').setScale(0.55);
+async function create() {
+  this.add.image(400, 300, "background").setScale(0.55);
   platforms = this.physics.add.staticGroup();
-  platforms.create(470, 400, 'ground').setScale(0.5).refreshBody();
-  platforms.create(535, 400, 'ground').setScale(0.5).refreshBody();
-  platforms.create(600, 400, 'ground').setScale(0.5).refreshBody();
-  platforms.create(665, 400, 'ground').setScale(0.5).refreshBody();
-  platforms.create(730, 400, 'ground').setScale(0.5).refreshBody();
+  platforms.create(470, 400, "ground").setScale(0.5).refreshBody();
+  platforms.create(535, 400, "ground").setScale(0.5).refreshBody();
+  platforms.create(600, 400, "ground").setScale(0.5).refreshBody();
+  platforms.create(665, 400, "ground").setScale(0.5).refreshBody();
+  platforms.create(730, 400, "ground").setScale(0.5).refreshBody();
 
-  player = this.physics.add.sprite(500, 300, 'player').setScale(0.3).refreshBody();
+  player = this.physics.add
+    .sprite(500, 300, "player")
+    .setScale(0.3)
+    .refreshBody();
   player.setBounce(0.1);
- // player.setCollideWorldBounds(true);
+  // player.setCollideWorldBounds(true);
 
   this.physics.add.collider(player, platforms);
   cursors = this.input.keyboard.createCursorKeys();
@@ -139,19 +147,20 @@ async function create ()
   let user = Moralis.User.current();
   let query = new Moralis.Query("PlayerPosition");
   let subscription = await query.subscribe();
-  subscription.on('create', (plocation) => {
-   // console.log("plocation->", plocation.get("player"));
-   // console.log("user->" ,user.get("ethAddress"));
+  subscription.on("create", (plocation) => {
+    // console.log("plocation->", plocation.get("player"));
+    // console.log("user->" ,user.get("ethAddress"));
     if (plocation.get("player") != user.get("ethAddress")) {
       //if first time seeing
       if (competitors[plocation.get("player")] == undefined) {
-        competitors[plocation.get("player")] = this.physics.add.sprite(plocation.get("x"), plocation.get("y"), 'competitor').setScale(0.3);
-      }
-      else {
+        competitors[plocation.get("player")] = this.physics.add
+          .sprite(plocation.get("x"), plocation.get("y"), "competitor")
+          .setScale(0.3);
+      } else {
         competitors[plocation.get("player")].x = plocation.get("x");
         competitors[plocation.get("player")].y = plocation.get("y");
       }
-      
+
       console.log("someone moved");
       console.log("player", plocation.get("player"));
       console.log("new X", plocation.get("x"));
@@ -161,30 +170,23 @@ async function create ()
 }
 
 //60 times per second - 60 frames per second
-async function update ()
-{
+async function update() {
   //console.log("upload");
-  if (cursors.left.isDown)
-  {
-      player.setVelocityX(-160);
-  }
-  else if (cursors.right.isDown)
-  {
-      player.setVelocityX(160);
-  }
-  else
-  {
-      player.setVelocityX(0);
+  if (cursors.left.isDown) {
+    player.setVelocityX(-160);
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(160);
+  } else {
+    player.setVelocityX(0);
   }
 
-  if (cursors.up.isDown && player.body.touching.down)
-  {
-      player.setVelocityY(jumpHeight);
+  if (cursors.up.isDown && player.body.touching.down) {
+    player.setVelocityY(jumpHeight);
   }
 
   if (player.lastX != player.x || player.lastY != player.y) {
     let user = Moralis.User.current();
-    
+
     const PlayerPosition = Moralis.Object.extend("PlayerPosition");
     const playerPosition = new PlayerPosition();
 
